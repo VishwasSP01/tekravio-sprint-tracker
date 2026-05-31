@@ -12,11 +12,16 @@ import com.tekravio.tracker.model.Task;
 import com.tekravio.tracker.model.TaskPriority;
 import com.tekravio.tracker.model.TaskStatus;
 import com.tekravio.tracker.repository.TaskRepository;
+import com.tekravio.tracker.model.TaskStatusHistory;
+import com.tekravio.tracker.repository.TaskStatusHistoryRepository;
+import com.tekravio.tracker.security.CurrentUserService;
+import com.tekravio.tracker.dto.TaskHistoryDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Transactional
@@ -25,11 +30,16 @@ public class TaskService {
     private final TaskRepository repository;
     private final SprintService sprintService;
     private final EngineerService engineerService;
+    private final TaskStatusHistoryRepository historyRepository;
+    private final CurrentUserService currentUserService;
 
-    public TaskService(TaskRepository repository, SprintService sprintService, EngineerService engineerService) {
+    public TaskService(TaskRepository repository, SprintService sprintService, EngineerService engineerService,
+                       TaskStatusHistoryRepository historyRepository, CurrentUserService currentUserService) {
         this.repository = repository;
         this.sprintService = sprintService;
         this.engineerService = engineerService;
+        this.historyRepository = historyRepository;
+        this.currentUserService = currentUserService;
     }
 
     public TaskDto.Response create(TaskDto.Request request) {
@@ -63,6 +73,7 @@ public class TaskService {
 
     public TaskDto.Response update(Long id, TaskDto.Request request) {
         Task task = find(id);
+        currentUserService.requireTaskUpdatePermission(task);
         task.setTitle(request.title());
         task.setDescription(request.description());
         task.setPriority(request.priority());
@@ -83,8 +94,19 @@ public class TaskService {
 
     public TaskDto.Response updateStatus(Long id, TaskStatus requestedStatus) {
         Task task = find(id);
+        currentUserService.requireTaskUpdatePermission(task);
         updateStatus(task, requestedStatus);
         return DtoMapper.toResponse(task);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TaskHistoryDto> history(Long taskId) {
+        find(taskId);
+        return historyRepository.findAllByTaskIdOrderByChangedAtAsc(taskId).stream()
+                .map(history -> new TaskHistoryDto(history.getId(), history.getTask().getId(),
+                        history.getPreviousStatus(), history.getNewStatus(), history.getChangedAt(),
+                        history.getChangedBy()))
+                .toList();
     }
 
     public TaskDto.Response assignEngineer(Long taskId, Long engineerId) {
@@ -110,7 +132,10 @@ public class TaskService {
             throw new InvalidStatusTransitionException(
                     "Task status must advance exactly one step from " + task.getStatus() + " to " + requestedStatus);
         }
+        TaskStatus previousStatus = task.getStatus();
         task.setStatus(requestedStatus);
+        historyRepository.save(new TaskStatusHistory(task, previousStatus, requestedStatus,
+                currentUserService.username()));
         if (requestedStatus == TaskStatus.DONE) {
             task.setCompletedAt(LocalDateTime.now());
         }

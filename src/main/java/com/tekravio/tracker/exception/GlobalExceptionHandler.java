@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.security.core.AuthenticationException;
 
 import java.util.List;
 
@@ -47,6 +48,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException exception) {
         return ResponseEntity.badRequest().body(ErrorResponse.of("Request conflicts with existing data"));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorResponse.of("Invalid credentials"));
+    }
+
+    @ExceptionHandler(ForbiddenOperationException.class)
+    ResponseEntity<ErrorResponse> handleForbidden(ForbiddenOperationException exception) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.of(exception.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

@@ -1,6 +1,7 @@
 package com.tekravio.tracker.config;
 
 import com.tekravio.tracker.model.Client;
+import com.tekravio.tracker.model.AppUser;
 import com.tekravio.tracker.model.Engineer;
 import com.tekravio.tracker.model.PrimaryStack;
 import com.tekravio.tracker.model.Project;
@@ -10,6 +11,8 @@ import com.tekravio.tracker.model.SprintStatus;
 import com.tekravio.tracker.model.Task;
 import com.tekravio.tracker.model.TaskPriority;
 import com.tekravio.tracker.model.TaskStatus;
+import com.tekravio.tracker.model.UserRole;
+import com.tekravio.tracker.repository.AppUserRepository;
 import com.tekravio.tracker.repository.ClientRepository;
 import com.tekravio.tracker.repository.EngineerRepository;
 import com.tekravio.tracker.repository.ProjectRepository;
@@ -18,14 +21,15 @@ import com.tekravio.tracker.repository.TaskRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 @Configuration
-@Profile("!test & !prod")
+@ConditionalOnProperty(name = "app.seed.enabled", havingValue = "true", matchIfMissing = true)
 public class DataSeeder {
 
     @Bean
@@ -34,7 +38,9 @@ public class DataSeeder {
             ProjectRepository projectRepository,
             SprintRepository sprintRepository,
             EngineerRepository engineerRepository,
-            TaskRepository taskRepository) {
+            TaskRepository taskRepository,
+            AppUserRepository appUserRepository,
+            PasswordEncoder passwordEncoder) {
         return args -> {
             if (clientRepository.count() > 0) {
                 return;
@@ -68,6 +74,12 @@ public class DataSeeder {
             Engineer qaEngineer = new Engineer("Kabir Singh", "kabir@tekravio.example",
                     PrimaryStack.QA, 5, false);
             engineerRepository.saveAll(List.of(javaEngineer, reactEngineer, qaEngineer));
+
+            appUserRepository.saveAll(List.of(
+                    new AppUser("admin", passwordEncoder.encode("Admin@123"), UserRole.ADMIN, null),
+                    new AppUser("aarav", passwordEncoder.encode("Engineer@123"), UserRole.ENGINEER, javaEngineer),
+                    new AppUser("diya", passwordEncoder.encode("Engineer@123"), UserRole.ENGINEER, reactEngineer)
+            ));
 
             taskRepository.saveAll(List.of(
                     task("Design account schema", TaskPriority.HIGH, TaskStatus.DONE, "8", "7",

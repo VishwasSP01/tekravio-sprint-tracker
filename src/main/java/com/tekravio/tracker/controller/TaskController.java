@@ -3,6 +3,7 @@ package com.tekravio.tracker.controller;
 import com.tekravio.tracker.dto.ApiResponse;
 import com.tekravio.tracker.dto.PageResponse;
 import com.tekravio.tracker.dto.TaskDto;
+import com.tekravio.tracker.dto.TaskHistoryDto;
 import com.tekravio.tracker.model.TaskPriority;
 import com.tekravio.tracker.model.TaskStatus;
 import com.tekravio.tracker.service.TaskService;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -72,5 +75,10 @@ public class TaskController {
     @PutMapping("/{id}/assign/{engineerId}")
     ApiResponse<TaskDto.Response> assign(@PathVariable Long id, @PathVariable Long engineerId) {
         return ApiResponse.success(service.assignEngineer(id, engineerId), "Engineer assigned");
+    }
+
+    @GetMapping("/{id}/history")
+    ApiResponse<List<TaskHistoryDto>> history(@PathVariable Long id) {
+        return ApiResponse.success(service.history(id), "Task status history retrieved");
     }
 }
