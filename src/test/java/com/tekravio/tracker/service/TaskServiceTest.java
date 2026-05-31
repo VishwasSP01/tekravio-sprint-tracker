@@ -13,6 +13,8 @@ import com.tekravio.tracker.model.Task;
 import com.tekravio.tracker.model.TaskPriority;
 import com.tekravio.tracker.model.TaskStatus;
 import com.tekravio.tracker.repository.TaskRepository;
+import com.tekravio.tracker.repository.TaskStatusHistoryRepository;
+import com.tekravio.tracker.security.CurrentUserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -46,6 +48,12 @@ class TaskServiceTest {
     @Mock
     private EngineerService engineerService;
 
+    @Mock
+    private TaskStatusHistoryRepository historyRepository;
+
+    @Mock
+    private CurrentUserService currentUserService;
+
     @InjectMocks
     private TaskService taskService;
 
@@ -75,6 +83,7 @@ class TaskServiceTest {
     void updateStatus_whenCompletingTask_recordsCompletionTime() {
         Task task = task(TaskStatus.REVIEW);
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+        when(currentUserService.username()).thenReturn("admin");
 
         TaskDto.Response response = taskService.updateStatus(1L, TaskStatus.DONE);
 
