@@ -75,7 +75,7 @@ public class DataSeeder {
                     task("Implement transaction search", TaskPriority.CRITICAL, TaskStatus.IN_PROGRESS, "14",
                             null, bankingSprint, javaEngineer),
                     task("Add API contract tests", TaskPriority.HIGH, TaskStatus.TODO, "6", null,
-                            bankingSprint, qaEngineer),
+                            bankingSprint, null),
                     task("Build ingestion endpoint", TaskPriority.HIGH, TaskStatus.TODO, "12", null,
                             retailSprint, javaEngineer),
                     task("Create dashboard wireframe", TaskPriority.MEDIUM, TaskStatus.TODO, "5", null,
