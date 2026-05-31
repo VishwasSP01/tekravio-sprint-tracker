@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tasks")
@@ -42,6 +43,11 @@ public class Task {
     @Column(precision = 8, scale = 2)
     private BigDecimal actualHours;
 
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    private LocalDateTime completedAt;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "sprint_id", nullable = false)
     private Sprint sprint;
@@ -64,6 +70,7 @@ public class Task {
         this.actualHours = actualHours;
         this.sprint = sprint;
         this.assignedEngineer = assignedEngineer;
+        this.createdAt = LocalDateTime.now();
     }
 
     public Long getId() { return id; }
@@ -79,6 +86,9 @@ public class Task {
     public void setEstimatedHours(BigDecimal estimatedHours) { this.estimatedHours = estimatedHours; }
     public BigDecimal getActualHours() { return actualHours; }
     public void setActualHours(BigDecimal actualHours) { this.actualHours = actualHours; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getCompletedAt() { return completedAt; }
+    public void setCompletedAt(LocalDateTime completedAt) { this.completedAt = completedAt; }
     public Sprint getSprint() { return sprint; }
     public void setSprint(Sprint sprint) { this.sprint = sprint; }
     public Engineer getAssignedEngineer() { return assignedEngineer; }
