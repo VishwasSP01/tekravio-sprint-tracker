@@ -2,6 +2,7 @@ package com.tekravio.tracker.dto;
 
 import com.tekravio.tracker.model.TaskPriority;
 import com.tekravio.tracker.model.TaskStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,6 +16,7 @@ public final class TaskDto {
     private TaskDto() {
     }
 
+    @Schema(name = "TaskRequest")
     public record Request(
             @NotBlank @Size(max = 255) String title,
             @NotBlank @Size(max = 2000) String description,
@@ -26,6 +28,7 @@ public final class TaskDto {
             Long assignedEngineerId) {
     }
 
+    @Schema(name = "TaskResponse")
     public record Response(
             Long id,
             String title,
@@ -40,6 +43,7 @@ public final class TaskDto {
             LocalDateTime completedAt) {
     }
 
+    @Schema(name = "TaskStatusRequest")
     public record StatusRequest(@NotNull TaskStatus status) {
     }
 }

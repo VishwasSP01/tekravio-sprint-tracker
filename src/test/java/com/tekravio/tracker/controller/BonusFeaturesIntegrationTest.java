@@ -50,7 +50,10 @@ class BonusFeaturesIntegrationTest {
 
         mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.info.title").value("Tekravio Project & Sprint Tracker API"));
+                .andExpect(jsonPath("$.info.title").value("Tekravio Project & Sprint Tracker API"))
+                .andExpect(jsonPath("$.components.schemas.ClientResponse.properties.name").exists())
+                .andExpect(jsonPath("$.components.schemas.ClientResponse.properties.title").doesNotExist())
+                .andExpect(jsonPath("$.components.schemas.TaskResponse.properties.title").exists());
     }
 
     @Test

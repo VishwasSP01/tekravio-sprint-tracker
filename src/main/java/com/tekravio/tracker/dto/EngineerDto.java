@@ -1,6 +1,7 @@
 package com.tekravio.tracker.dto;
 
 import com.tekravio.tracker.model.PrimaryStack;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,6 +13,7 @@ public final class EngineerDto {
     private EngineerDto() {
     }
 
+    @Schema(name = "EngineerRequest")
     public record Request(
             @NotBlank @Size(max = 255) String name,
             @NotBlank @Email @Size(max = 255) String email,
@@ -20,6 +22,7 @@ public final class EngineerDto {
             boolean available) {
     }
 
+    @Schema(name = "EngineerResponse")
     public record Response(
             Long id,
             String name,
