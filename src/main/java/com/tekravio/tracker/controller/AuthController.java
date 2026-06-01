@@ -3,6 +3,7 @@ package com.tekravio.tracker.controller;
 import com.tekravio.tracker.dto.ApiResponse;
 import com.tekravio.tracker.dto.AuthDto;
 import com.tekravio.tracker.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +20,7 @@ public class AuthController {
         this.service = service;
     }
 
+    @Operation(security = {})
     @PostMapping("/login")
     ApiResponse<AuthDto.LoginResponse> login(@Valid @RequestBody AuthDto.LoginRequest request) {
         return ApiResponse.success(service.login(request), "Login successful");
